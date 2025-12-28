@@ -24,7 +24,9 @@ jobs:
           pip install pytest
 
       - name: Démarrer le conteneur
-        run: docker compose up -d
+        run: |
+          docker network create labo01-network
+          docker compose up -d
 
       - name: Attendre MySQL
         run: |
