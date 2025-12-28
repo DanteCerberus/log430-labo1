@@ -7,21 +7,16 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout dépot
+        uses: actions/checkout@v4
 
       - name: Créer fichier .env (TODO - utilisez les secrets)
         run: |
-          echo "MYSQL_HOST=localhost" >> .env
-          echo "MONGODB_HOST=localhost" >> .env
+          echo "MYSQL_HOST=mysql" >> .env
+          echo "MONGODB_HOST=mongo" >> .env
           echo "MYSQL_DB_NAME=labo01_db" >> .env
           echo "DB_USERNAME=labo01" >> .env
           echo "DB_PASSWORD=labo01" >> .env
-
-      - name: Installer les dependences Python
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
-          pip install pytest
 
       - name: Démarrer le conteneur
         run: |
