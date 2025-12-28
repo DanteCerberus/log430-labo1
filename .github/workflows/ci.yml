@@ -44,10 +44,8 @@ jobs:
           sleep 5
 
       - name: Éxécuter les tests (TODO - ajouter test_products)
-        env:
-          PYTHONPATH: ${{ github.workspace }}/src
         run: | 
-          python -m pytest ./src/tests/test_user.py
+          docker exec store_manager_cli pytest ./src/tests/test_user.py
 
       - name: Cleanup
         if: always()
