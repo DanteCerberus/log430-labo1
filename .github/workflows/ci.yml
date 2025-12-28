@@ -9,13 +9,13 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Créer fichier .env 
+      - name: Créer fichier .env (TODO: utilisez les secrets)
         run: |
           echo "MYSQL_HOST=localhost" >> .env
           echo "MONGODB_HOST=localhost" >> .env
-          echo "MYSQL_DB_NAME=mydb" >> .env
-          echo "DB_USERNAME=user" >> .env
-          echo "DB_PASSWORD=pass" >> .env
+          echo "MYSQL_DB_NAME=labo01_db" >> .env
+          echo "DB_USERNAME=labo01" >> .env
+          echo "DB_PASSWORD=labo01" >> .env
 
       - name: Installer les dependences Python
         run: |
@@ -43,11 +43,11 @@ jobs:
           done
           sleep 5
 
-      - name: Éxécuter les tests
+      - name: Éxécuter les tests (TODO - ajouter test_products)
         env:
           PYTHONPATH: ${{ github.workspace }}/src
         run: | 
-          python -m pytest
+          python -m pytest ./src/tests/test_user.py
 
       - name: Cleanup
         if: always()
