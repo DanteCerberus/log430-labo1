@@ -30,10 +30,16 @@ Créez un fichier `.env` basé sur `.env.example`. Dans le fichier `.env`, utili
 
 > ⚠️ IMPORTANT : Si vous executez l'application sur votre ordinateur, utilisez les valeurs `localhost` ou `127.0.0.1` sur les variables `MYSQL_HOST` et `MONGODB_HOST`. Si vous executez l'application sur **Docker**, conservez les valeurs indiqués dans le fichier `.env.example.`. Dans un conteneur Docker, vous devez **toujours** indiquer le nom (hostname) d'un service dans `docker-compose.yml` et non `localhost`.
 
-### 3. Préparer l’environnement de développement
+### 3. Créez un réseau Docker
+Éxecutez dans votre terminal:
+```bash
+docker network create labo01-network
+```
+
+### 4. Préparer l’environnement de développement
 Suivez les mêmes étapes que dans le labo 0. 
 
-### 4. Lancez l’application 
+### 5. Lancez l’application 
 Suivez les mêmes étapes que dans le labo 0, mais utilisez `store_manager.py` au lieu de `calculator.py`.
 ```bash
 python src/store_manager.py
