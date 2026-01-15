@@ -18,7 +18,7 @@ Dans ce laboratoire, vous développerez une application de gestion des utilisate
 ### 1. Clonez le dépôt
 
 ```bash
-git clone https://github.com/[votre_nom]/log430-labo1
+git clone < lien à votre dépôt GitHub >
 cd log430-labo1
 ```
 
