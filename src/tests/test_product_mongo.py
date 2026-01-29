@@ -1,8 +1,7 @@
-from daos.product_dao import ProductDAO
+from daos.product_dao_mongo import ProductDAOMongo
 from models.product import Product
 
-dao = ProductDAO()
-
+dao = ProductDAOMongo()
     
 def test_product_select():
     user_list = dao.select_all()
@@ -21,7 +20,7 @@ def test_product_update():
     assigned_id = dao.insert(prd)
 
     corrected_name = 'Testimonial'
-    prd.id = assigned_id
+    prd.prod_id = assigned_id
     prd.name = corrected_name
     dao.update(prd)
 
@@ -36,7 +35,7 @@ def test_product_delete():
     assigned_id = dao.insert(prd)
     dao.delete(assigned_id)
 
-    new_dao = ProductDAO()
+    new_dao = ProductDAOMongo()
     prod_list = new_dao.select_all()
     prods = [p.name for p in prod_list]
-    assert prd.name not in prod_list
+    assert prd.name not in prods

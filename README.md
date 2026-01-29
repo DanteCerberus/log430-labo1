@@ -18,7 +18,7 @@ Dans ce laboratoire, vous développerez une application de gestion des utilisate
 ### 1. Clonez le dépôt
 
 ```bash
-git clone < lien à votre dépôt GitHub >
+git clone git@github.com:DanteCerberus/log430-labo1.git
 cd log430-labo1
 ```
 
@@ -56,6 +56,23 @@ Complétez cette DAO en y ajoutant :
 
 > 💡 **Question 1** : Quelles commandes avez-vous utilisées pour effectuer les opérations UPDATE et DELETE dans MySQL ? Avez-vous uniquement utilisé Python ou également du SQL ? Veuillez inclure le code pour illustrer votre réponse.
 
+
+Un mélange des deux. conn pour gérer la connection, cursor pour gérer la requête sql. 
+
+    def update(self, user):
+        """ Update given user in MySQL """
+        self.cursor.execute("UPDATE users SET name = %s, email = %s WHERE id = %s", (user.name, user.email, user.id))
+        self.conn.commit()
+        
+
+    def delete(self, user_id):
+        """ Delete user from MySQL with given user ID """
+        self.cursor.execute(
+            "DELETE FROM users WHERE id =%s",
+            [user_id]
+        )
+        self.conn.commit()
+
 #### Remarque : types de DAO
 Il existe plusieurs manières d’implémenter une DAO. Par exemple, nous pourrions placer les opérations de base de données directement dans la classe Model. Dans notre cas, nous conservons la DAO et le Model séparés, comme décrit dans les ouvrages suivants : 
 - 📘 Documenting Software Architectures: Views and Beyond, Clements et al., 2010, p. 97.
@@ -76,6 +93,80 @@ Modifiez la méthode `__init__` pour vous connecter à MongoDB au lieu de MySQL.
 Modifiez `test_user.py` pour utiliser `UserDAOMongo` en lieu de `UserDAO`, puis relancez les tests. Une implémentation correcte doit produire les mêmes résultats, en considérant que quelques ajustements mineurs dans les tests peuvent être nécessaires pour assurer l’interchangeabilité des DAO.
 
 > 💡 **Question 2** : Quelles commandes avez-vous utilisées pour effectuer les opérations dans MongoDB ? Avez-vous uniquement utilisé Python ou également du SQL ? Veuillez inclure le code pour illustrer votre réponse.
+
+conn -> MongoClient
+cursor -> une collection de la base de données
+
+"""
+User DAO (Data Access Object)
+SPDX - License - Identifier: LGPL - 3.0 - or -later
+Auteurs : Gabriel C. Ullmann, Fabio Petrillo, 2025
+"""
+import os
+from dotenv import load_dotenv
+from pymongo import MongoClient
+from models.user import User
+
+class UserDAOMongo:
+    def __init__(self):
+        try:
+            env_path = ".env"
+            print(os.path.abspath(env_path))
+            load_dotenv(dotenv_path=env_path)
+            db_host = os.getenv("MYSQL_HOST")
+            db_name = os.getenv("MYSQL_DB_NAME")
+            db_user = os.getenv("DB_USERNAME")
+            db_pass = os.getenv("DB_PASSWORD") 
+            self.client = MongoClient(
+                f"mongodb://{db_user}:{db_pass}@{db_host}:27017"
+            )
+            db = self.client[db_name]
+            self.collection = db["users"] 
+            
+        except FileNotFoundError as e:
+            print("Attention : Veuillez créer un fichier .env")
+        except Exception as e:
+            print("Erreur : " + str(e))
+
+    def select_all(self):
+        """ Select all users from MySQL """
+        rows = self.collection.find()
+        return [
+        User(
+            user_id=row.get("id"),
+            name=row.get("name"),
+            email=row.get("email")
+        )
+        for row in rows
+        ]
+
+    def insert(self, user):
+        """ Insert given user into MySQL """
+        return self.collection.insert_one({"name" :user.name, "email" : user.email}).inserted_id
+
+    def update(self, user):
+        """ Update given user in MySQL """
+        self.collection.find_one_and_update(
+            {"_id" : user.id}, 
+            {"$set":{"name" : user.name,"email" : user.email}}
+            )
+        
+
+    def delete(self, user_id):
+        """ Delete user from MySQL with given user ID """
+        self.collection.find_one_and_delete({"_id" : user_id})
+        
+        
+
+    def delete_all(self): #optional
+        """ Empty users table in MySQL """
+        self.collection.delete_many( {})
+        
+        
+        
+    def close(self):
+        self.client.close()
+
 
 ### 3. Nouvelle table : Products
 Insérez le code SQL pour créer la table `products` dans `db-init/init.sql`. Ce fichier sera executé a chaque fois qu'on démarre la conteneur.
@@ -101,7 +192,57 @@ N'oubliez pas la création des tests pour valider `ProductDAO`. Le fichier de te
 
 > 💡 **Question 3** : Comment avez-vous implémenté votre `product_view.py` ? Est-ce qu’il importe directement la `ProductDAO` ? Veuillez inclure le code pour illustrer votre réponse.
 
+Le code est essentiellment le même que celui de user avec quelque modidification pour le model Product. Il appel le controlleur qui lui appel la ProductDAO
+
+"""
+User view
+SPDX - License - Identifier: LGPL - 3.0 - or -later
+Auteurs : Gabriel C. Ullmann, Fabio Petrillo, 2025
+"""
+from models.product import Product
+from controllers.product_controller import ProductController
+
+class ProductView:
+    @staticmethod
+    def show_options():
+        """ Show menu with operation options which can be selected by the user """
+        controller = ProductController()
+        while True:
+            print("\n1. Montrer la liste de produit\n2. Ajouter un produit\n3. Quitter l'appli")
+            choice = input("Choisissez une option: ")
+
+            if choice == '1':
+                product = controller.list_product()
+                ProductView.show_products(product)
+            elif choice == '2':
+                name, brand, price = ProductView.get_inputs()
+                product = Product(None, name, brand, price)
+                controller.create_product(product)
+            elif choice == '3':
+                controller.shutdown()
+                break
+            else:
+                print("Cette option n'existe pas.")
+
+    @staticmethod
+    def show_products(products):
+        """ List users """
+        print("\n".join(f"{product.prod_id}: {product.name} {product.brand}{product.price}" for product in products))
+
+    @staticmethod
+    def get_inputs():
+        """ Prompt product for inputs necessary to add a new product """
+        name = input("Nom du produit : ").strip()
+        brand = input("Marque du produit: ").strip()
+        prix = input("Prix du produit: ").strip()
+        return name, brand, prix
+
+
 > 💡 **Question 4** : Si nous devions créer une application permettant d’associer des achats d'articles aux utilisateurs (`Users` → `Products`), comment structurerions-nous les données dans MySQL par rapport à MongoDB ?
+
+Pour MySQL, il faudrait faire une ou plusieurs table intermédiaire. Les tables peuvent être facture qui contiendrait l'utilisateur et listeItem qui contiendrait une référence du numéro facture, de l'identifiant des produits ainsi que la quantité de chacun.
+
+MongoDB pourrait contenir une table qui contiendrait l'identifiant de l'utilisateur ainsi que la sous-liste des produits de chancun.
 
 
 ### ✅ Correction des activités
