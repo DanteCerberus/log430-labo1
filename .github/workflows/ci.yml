@@ -39,6 +39,21 @@ jobs:
           done
           sleep 5
 
+      - name: Attendre Mongo
+        run: |
+          sleep 10
+          timeout=60
+          until docker exec mongo mongosh  ping -h localhost -u root -proot --silent; do
+            echo "Waiting for Mongo..."
+            sleep 3
+            timeout=$((timeout - 3))
+            if [ $timeout -le 0 ]; then
+              echo "Mongo failed to start"
+              exit 1
+            fi
+          done
+          sleep 5
+      
       - name: Éxécuter les tests (TODO - ajouter test_products)
         run: | 
           docker exec store_manager_cli pytest ./src/tests/test_user.py
