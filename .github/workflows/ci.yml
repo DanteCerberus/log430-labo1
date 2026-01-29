@@ -43,7 +43,7 @@ jobs:
         run: |
           sleep 10
           timeout=60
-          until docker exec mongo mongosh --host localhost -u root -p root --quiet --authenticationDatabase admin; do
+          until docker exec mongo mongosh --host localhost -u $DB_USERNAME -p $DB_PASSWORD --quiet --authenticationDatabase admin; do
             echo "Waiting for Mongo..."
             sleep 3
             timeout=$((timeout - 3))
