@@ -14,8 +14,8 @@ class ProductDAOMongo:
             env_path = ".env"
             print(os.path.abspath(env_path))
             load_dotenv(dotenv_path=env_path)
-            db_host = os.getenv("MYSQL_HOST")
-            db_name = os.getenv("MYSQL_DB_NAME")
+            db_host = os.getenv("MONGO_HOST")
+            db_name = os.getenv("MONGO_DB_NAME")
             db_user = os.getenv("DB_USERNAME")
             db_pass = os.getenv("DB_PASSWORD") 
             self.client = MongoClient(
@@ -34,7 +34,7 @@ class ProductDAOMongo:
         rows = self.collection.find()
         return [
         Product(
-            prod_id=row.get("id"),
+            prod_id=row.get("_id"),
             name=row.get("name"),
             brand=row.get("brand"),
             price=row.get("price")

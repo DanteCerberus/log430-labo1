@@ -8,9 +8,9 @@ from views.product_view import ProductView
 
 if __name__ == '__main__':
     print("===== LE MAGASIN DU COIN =====")
-    choice = input("1.Pour utilisateur \n2.Produit ")
-    main_menu = 0
-    if choice == 1:
+    choice = input("1.Pour utilisateur \n2.Produit\n")
+    main_menu = '0'
+    if choice == '1':
         main_menu = UserView()
     else : 
         main_menu = ProductView()

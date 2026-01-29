@@ -34,7 +34,7 @@ class UserDAOMongo:
         rows = self.collection.find()
         return [
         User(
-            user_id=row.get("id"),
+            user_id=row.get("_id"),
             name=row.get("name"),
             email=row.get("email")
         )

@@ -35,10 +35,12 @@ services:
     ports:
       - "27017:27017"
     environment:
+      MONGO_INITDB_DATABASE: labo01_db
       MONGO_INITDB_ROOT_USERNAME: labo01
       MONGO_INITDB_ROOT_PASSWORD: labo01
     volumes:
       - mongo-data:/data/db
+      -  ./db-init:/docker-entrypoint-initdb.d
     networks:
       - labo01-network
 
@@ -48,3 +50,4 @@ networks:
 
 volumes:
   mongo-data:
+    
